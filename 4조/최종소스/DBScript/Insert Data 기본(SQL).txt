@@ -1,0 +1,6 @@
+INSERT INTO owl.roles
+(`authority`,`role_name`,`description`)
+VALUES
+('ROLE_USER', '멤버',	'포함된 프로젝트 없음')
+,('ROLE_PROJECTMEMBER',	'프로젝트 멤버',	'프로제트를 가지고 있음')
+,('ROLE_PM','프로젝트 매니져','프로젝트 관리자 매니져');

@@ -1,0 +1,6 @@
+-- PROJECT Table AFTER INSERT
+
+CREATE DEFINER=`family_c`@`%` TRIGGER `project_AFTER_INSERT` AFTER INSERT ON `project` FOR EACH ROW BEGIN
+	insert into owl.colname(colidx, colname, projectidx) values (-99,'default closed', NEW.projectidx);
+	insert into owl.colname(colidx, colname, projectidx) values (-1,'default open', NEW.projectidx);
+END

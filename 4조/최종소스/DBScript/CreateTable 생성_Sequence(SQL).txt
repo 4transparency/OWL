@@ -1,0 +1,749 @@
+-- 프로젝트공지사항
+DROP TABLE IF EXISTS `board` RESTRICT;
+
+-- 파일
+DROP TABLE IF EXISTS `file` RESTRICT;
+
+-- 회원
+DROP TABLE IF EXISTS `member` RESTRICT;
+
+-- 프로젝트
+DROP TABLE IF EXISTS `project` RESTRICT;
+
+-- 프로젝트 회원 목록
+DROP TABLE IF EXISTS `projectlist` RESTRICT;
+
+-- 이슈
+DROP TABLE IF EXISTS `issue` RESTRICT;
+
+-- 라벨
+DROP TABLE IF EXISTS `label` RESTRICT;
+
+-- 드라이브 폴더
+DROP TABLE IF EXISTS `drivefolder` RESTRICT;
+
+-- 채팅방
+DROP TABLE IF EXISTS `chatroom` RESTRICT;
+
+-- 채팅방 참여자
+DROP TABLE IF EXISTS `chatuser` RESTRICT;
+
+-- 개인환경설정
+DROP TABLE IF EXISTS `setting` RESTRICT;
+
+-- 채팅타입
+DROP TABLE IF EXISTS `chattype` RESTRICT;
+
+-- 캘린더
+DROP TABLE IF EXISTS `smartcalendar` RESTRICT;
+
+-- 이슈변동기록
+DROP TABLE IF EXISTS `issuelog` RESTRICT;
+
+-- 사용자 권한 매핑
+DROP TABLE IF EXISTS `authorities` RESTRICT;
+
+-- 역할
+DROP TABLE IF EXISTS `roles` RESTRICT;
+
+-- 드라이브 파일
+DROP TABLE IF EXISTS `drivefile` RESTRICT;
+
+-- 칼럼명
+DROP TABLE IF EXISTS `colname` RESTRICT;
+
+-- 이슈댓글
+DROP TABLE IF EXISTS `issuerly` RESTRICT;
+
+-- 프로젝트공지사항
+CREATE TABLE `board` (
+	`boardidx`   BIGINT       NOT NULL COMMENT '글번호', -- 글번호
+	`email`      VARCHAR(200) NOT NULL COMMENT '이메일', -- 이메일
+	`title`      VARCHAR(100) NOT NULL COMMENT '글제목', -- 글제목
+	`content`    MEDIUMTEXT   NOT NULL COMMENT '글내용', -- 글내용
+	`readnum`    INT          NOT NULL DEFAULT 0 COMMENT '조회수', -- 조회수
+	`writedate`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '작성일', -- 작성일
+	`projectidx` BIGINT       NULL     COMMENT '프로젝트식별번호' -- 프로젝트식별번호
+)
+COMMENT '프로젝트공지사항';
+
+-- 프로젝트공지사항
+ALTER TABLE `board`
+	ADD CONSTRAINT `PK_board` -- 프로젝트공지사항 기본키
+		PRIMARY KEY (
+			`boardidx` -- 글번호
+		);
+
+ALTER TABLE `board`
+	MODIFY COLUMN `boardidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '글번호';
+
+ALTER TABLE `board`
+	AUTO_INCREMENT = 1;
+
+-- 파일
+CREATE TABLE `file` (
+	`fileidx`  BIGINT       NOT NULL COMMENT '파일식별번호', -- 파일식별번호
+	`writer`   VARCHAR(100) NULL     COMMENT '작성자 이메일', -- 작성자 이메일
+	`filename` MEDIUMTEXT   NOT NULL COMMENT '저장파일이름', -- 저장파일이름
+	`filesize` INT          NOT NULL COMMENT '파일크기', -- 파일크기
+	`boardidx` BIGINT       NULL     COMMENT '글번호', -- 글번호
+	`issueidx` BIGINT       NULL     COMMENT '이슈식별번호' -- 이슈식별번호
+)
+COMMENT '파일';
+
+-- 파일
+ALTER TABLE `file`
+	ADD CONSTRAINT `PK_file` -- 파일 기본키
+		PRIMARY KEY (
+			`fileidx` -- 파일식별번호
+		);
+
+ALTER TABLE `file`
+	MODIFY COLUMN `fileidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '파일식별번호';
+
+ALTER TABLE `file`
+	AUTO_INCREMENT = 1;
+
+-- 회원
+CREATE TABLE `member` (
+	`email`      VARCHAR(200) NOT NULL COMMENT '이메일', -- 이메일
+	`password`   VARCHAR(200) NULL     COMMENT '비밀번호', -- 비밀번호
+	`enabled`    BIT          NOT NULL DEFAULT 1 COMMENT '계정사용여부', -- 계정사용여부
+	`name`       VARCHAR(100) NOT NULL COMMENT '이름', -- 이름
+	`profilepic` MEDIUMTEXT   NULL     COMMENT '프로필사진', -- 프로필사진
+	`signfrom`   VARCHAR(100) NULL     COMMENT '가입경로', -- 가입경로
+	`authok`     INT          NOT NULL DEFAULT 0 COMMENT '이메일인증상태' -- 이메일인증상태
+)
+COMMENT '회원';
+
+-- 회원
+ALTER TABLE `member`
+	ADD CONSTRAINT `PK_member` -- 회원 기본키
+		PRIMARY KEY (
+			`email` -- 이메일
+		);
+
+-- 프로젝트
+CREATE TABLE `project` (
+	`projectidx`  BIGINT       NOT NULL COMMENT '프로젝트식별번호', -- 프로젝트식별번호
+	`projectname` VARCHAR(100) NOT NULL COMMENT '프로젝트명', -- 프로젝트명
+	`startdate`   DATE         NULL     COMMENT '시작일', -- 시작일
+	`enddate`     DATE         NULL     COMMENT '마감일' -- 마감일
+)
+COMMENT '프로젝트';
+
+-- 프로젝트
+ALTER TABLE `project`
+	ADD CONSTRAINT `PK_project` -- 프로젝트 기본키
+		PRIMARY KEY (
+			`projectidx` -- 프로젝트식별번호
+		);
+
+ALTER TABLE `project`
+	MODIFY COLUMN `projectidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '프로젝트식별번호';
+
+ALTER TABLE `project`
+	AUTO_INCREMENT = 1;
+
+-- 프로젝트 회원 목록
+CREATE TABLE `projectlist` (
+	`projectidx`   BIGINT       NOT NULL COMMENT '프로젝트식별번호', -- 프로젝트식별번호
+	`email`        VARCHAR(200) NOT NULL COMMENT '이메일', -- 이메일
+	`favorite`     INT          NOT NULL DEFAULT 0 COMMENT '즐겨찾기 설정', -- 즐겨찾기 설정
+	`projectcolor` VARCHAR(100) NULL     COMMENT '프로젝트색', -- 프로젝트색
+	`authority`    VARCHAR(50)  NULL     COMMENT '권한' -- 권한
+)
+COMMENT '프로젝트 회원 목록';
+
+-- 프로젝트 회원 목록
+ALTER TABLE `projectlist`
+	ADD CONSTRAINT `PK_projectlist` -- 프로젝트 회원 목록 기본키
+		PRIMARY KEY (
+			`projectidx`, -- 프로젝트식별번호
+			`email`       -- 이메일
+		);
+
+-- 이슈
+CREATE TABLE `issue` (
+	`issueidx`      BIGINT       NOT NULL COMMENT '이슈식별번호', -- 이슈식별번호
+	`issuetitle`    VARCHAR(100) NOT NULL COMMENT '이슈제목', -- 이슈제목
+	`content`       MEDIUMTEXT   NOT NULL COMMENT '이슈내용', -- 이슈내용
+	`startdate`     TIMESTAMP    NULL     DEFAULT CURRENT_TIMESTAMP COMMENT '생성일', -- 생성일
+	`duedate`       DATE         NULL     COMMENT '마감일', -- 마감일
+	`issueprogress` VARCHAR(100) NOT NULL COMMENT '진행상황', -- 진행상황
+	`prioritycode`  VARCHAR(50)  NULL     COMMENT '중요도코드', -- 중요도코드
+	`assigned`      VARCHAR(200) NULL     COMMENT '담당자', -- 담당자
+	`creator`       VARCHAR(200) NULL     COMMENT '생산자', -- 생산자
+	`ordernum`      INT          NOT NULL COMMENT '순서번호', -- 순서번호
+	`rejectreason`  MEDIUMTEXT   NULL     COMMENT '이슈거절사유', -- 이슈거절사유
+	`labelidx`      BIGINT       NULL     COMMENT '라벨식별번호', -- 라벨식별번호
+	`colidx`        BIGINT       NULL     COMMENT '칼럼식별번호', -- 칼럼식별번호
+	`projectidx`    BIGINT       NULL     COMMENT '프로젝트식별번호' -- 프로젝트식별번호
+)
+COMMENT '이슈';
+
+-- 이슈
+ALTER TABLE `issue`
+	ADD CONSTRAINT `PK_issue` -- 이슈 기본키
+		PRIMARY KEY (
+			`issueidx` -- 이슈식별번호
+		);
+
+ALTER TABLE `issue`
+	MODIFY COLUMN `issueidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '이슈식별번호';
+
+ALTER TABLE `issue`
+	AUTO_INCREMENT = 1;
+
+-- 라벨
+CREATE TABLE `label` (
+	`labelidx`   BIGINT      NOT NULL COMMENT '라벨식별번호', -- 라벨식별번호
+	`labelname`  VARCHAR(50) NOT NULL COMMENT '라벨명', -- 라벨명
+	`labelcolor` VARCHAR(50) NOT NULL COMMENT '라벨색', -- 라벨색
+	`projectidx` BIGINT      NOT NULL COMMENT '프로젝트식별번호' -- 프로젝트식별번호
+)
+COMMENT '라벨';
+
+-- 라벨
+ALTER TABLE `label`
+	ADD CONSTRAINT `PK_label` -- 라벨 기본키
+		PRIMARY KEY (
+			`labelidx` -- 라벨식별번호
+		);
+
+ALTER TABLE `label`
+	MODIFY COLUMN `labelidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '라벨식별번호';
+
+ALTER TABLE `label`
+	AUTO_INCREMENT = 1;
+
+-- 드라이브 폴더
+CREATE TABLE `drivefolder` (
+	`driveidx`   BIGINT       NOT NULL COMMENT '폴더식별번호', -- 폴더식별번호
+	`foldername` VARCHAR(500) NULL     COMMENT '폴더명', -- 폴더명
+	`ref`        INT          NULL     COMMENT 'ref', -- ref
+	`depth`      INT          NOT NULL DEFAULT 0
+	 COMMENT 'depth', -- depth
+	`isdelete`   BIT          NULL     DEFAULT 0 COMMENT '휴지통에있나요', -- 휴지통에있나요
+	`deletedate` TIMESTAMP    NULL     COMMENT '삭제일', -- 삭제일
+	`projectidx` BIGINT       NOT NULL COMMENT '프로젝트식별번호' -- 프로젝트식별번호
+)
+COMMENT '드라이브 폴더';
+
+-- 드라이브 폴더
+ALTER TABLE `drivefolder`
+	ADD CONSTRAINT `PK_drivefolder` -- 드라이브 폴더 기본키
+		PRIMARY KEY (
+			`driveidx` -- 폴더식별번호
+		);
+
+ALTER TABLE `drivefolder`
+	MODIFY COLUMN `driveidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '폴더식별번호';
+
+ALTER TABLE `drivefolder`
+	AUTO_INCREMENT = 1;
+
+-- 채팅방
+CREATE TABLE `chatroom` (
+	`chatidx`      BIGINT       NOT NULL COMMENT '채팅방식별번호', -- 채팅방식별번호
+	`chatroomname` VARCHAR(100) NULL     COMMENT '채팅방명', -- 채팅방명
+	`typecode`     INT          NULL     COMMENT '타입코드', -- 타입코드
+	`projectidx`   BIGINT       NULL     COMMENT '프로젝트식별번호' -- 프로젝트식별번호
+)
+COMMENT '채팅방';
+
+-- 채팅방
+ALTER TABLE `chatroom`
+	ADD CONSTRAINT `PK_chatroom` -- 채팅방 기본키
+		PRIMARY KEY (
+			`chatidx` -- 채팅방식별번호
+		);
+
+ALTER TABLE `chatroom`
+	MODIFY COLUMN `chatidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '채팅방식별번호';
+
+ALTER TABLE `chatroom`
+	AUTO_INCREMENT = 1;
+
+-- 채팅방 참여자
+CREATE TABLE `chatuser` (
+	`chatuseridx` BIGINT       NOT NULL COMMENT '식별번호', -- 식별번호
+	`email`       VARCHAR(200) NOT NULL COMMENT '참여자이메일', -- 참여자이메일
+	`name`        VARCHAR(100) NULL     COMMENT '회원가입이름', -- 회원가입이름
+	`chatidx`     BIGINT       NOT NULL COMMENT '채팅방식별번호' -- 채팅방식별번호
+)
+COMMENT '채팅방 참여자';
+
+-- 채팅방 참여자
+ALTER TABLE `chatuser`
+	ADD CONSTRAINT `PK_chatuser` -- 채팅방 참여자 기본키
+		PRIMARY KEY (
+			`chatuseridx` -- 식별번호
+		);
+
+ALTER TABLE `chatuser`
+	MODIFY COLUMN `chatuseridx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '식별번호';
+
+ALTER TABLE `chatuser`
+	AUTO_INCREMENT = 1;
+
+-- 개인환경설정
+CREATE TABLE `setting` (
+	`settingidx`  BIGINT       NOT NULL COMMENT '환경설정식별자', -- 환경설정식별자
+	`email`       VARCHAR(200) NOT NULL COMMENT '이메일', -- 이메일
+	`font`        VARCHAR(200) NOT NULL COMMENT '폰트', -- 폰트
+	`activecolor` VARCHAR(200) NOT NULL COMMENT '글자색', -- 글자색
+	`themecolor`  VARCHAR(200) NOT NULL COMMENT '테마색' -- 테마색
+)
+COMMENT '개인환경설정';
+
+-- 개인환경설정
+ALTER TABLE `setting`
+	ADD CONSTRAINT `PK_setting` -- 개인환경설정 기본키
+		PRIMARY KEY (
+			`settingidx`, -- 환경설정식별자
+			`email`       -- 이메일
+		);
+
+ALTER TABLE `setting`
+	MODIFY COLUMN `settingidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '환경설정식별자';
+
+ALTER TABLE `setting`
+	AUTO_INCREMENT = 1;
+
+-- 채팅타입
+CREATE TABLE `chattype` (
+	`typecode` INT          NOT NULL COMMENT '타입코드', -- 타입코드
+	`typename` VARCHAR(100) NOT NULL COMMENT '타입명' -- 타입명
+)
+COMMENT '채팅타입';
+
+-- 채팅타입
+ALTER TABLE `chattype`
+	ADD CONSTRAINT `PK_chattype` -- 채팅타입 기본키
+		PRIMARY KEY (
+			`typecode` -- 타입코드
+		);
+
+ALTER TABLE `chattype`
+	MODIFY COLUMN `typecode` INT NOT NULL AUTO_INCREMENT COMMENT '타입코드';
+
+ALTER TABLE `chattype`
+	AUTO_INCREMENT = 1;
+
+-- 캘린더
+CREATE TABLE `smartcalendar` (
+	`calidx`     BIGINT       NOT NULL COMMENT '식별번호', -- 식별번호
+	`type`       VARCHAR(20)  NULL     COMMENT '타입', -- 타입
+	`title`      VARCHAR(100) NULL     COMMENT '제목', -- 제목
+	`content`    TEXT         NULL     COMMENT '내용', -- 내용
+	`startdate`  TIMESTAMP    NULL     COMMENT '시작', -- 시작
+	`enddate`    TIMESTAMP    NULL     COMMENT '끝', -- 끝
+	`allday`     BIT          NULL     DEFAULT 0 COMMENT '하루종일', -- 하루종일
+	`email`      VARCHAR(200) NOT NULL COMMENT '이메일', -- 이메일
+	`projectidx` BIGINT       NULL     COMMENT '프로젝트식별번호' -- 프로젝트식별번호
+)
+COMMENT '캘린더';
+
+-- 캘린더
+ALTER TABLE `smartcalendar`
+	ADD CONSTRAINT `PK_smartcalendar` -- 캘린더 기본키
+		PRIMARY KEY (
+			`calidx` -- 식별번호
+		);
+
+ALTER TABLE `smartcalendar`
+	MODIFY COLUMN `calidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '식별번호';
+
+ALTER TABLE `smartcalendar`
+	AUTO_INCREMENT = 1;
+
+-- 이슈변동기록
+CREATE TABLE `issuelog` (
+	`logidx`   BIGINT       NOT NULL COMMENT '로그식별번호', -- 로그식별번호
+	`log`      VARCHAR(100) NOT NULL COMMENT '이슈변동상황', -- 이슈변동상황
+	`creator`  VARCHAR(100) NOT NULL COMMENT '작성자', -- 작성자
+	`logtime`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '변동시간', -- 변동시간
+	`issueidx` BIGINT       NOT NULL COMMENT '이슈식별번호' -- 이슈식별번호
+)
+COMMENT '이슈변동기록';
+
+-- 이슈변동기록
+ALTER TABLE `issuelog`
+	ADD CONSTRAINT `PK_issuelog` -- 이슈변동기록 기본키
+		PRIMARY KEY (
+			`logidx` -- 로그식별번호
+		);
+
+ALTER TABLE `issuelog`
+	MODIFY COLUMN `logidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '로그식별번호';
+
+ALTER TABLE `issuelog`
+	AUTO_INCREMENT = 1;
+
+-- 사용자 권한 매핑
+CREATE TABLE `authorities` (
+	`email`     VARCHAR(200) NOT NULL COMMENT '이메일', -- 이메일
+	`authority` VARCHAR(50)  NOT NULL COMMENT '권한' -- 권한
+)
+COMMENT '사용자 권한 매핑';
+
+-- 사용자 권한 매핑
+ALTER TABLE `authorities`
+	ADD CONSTRAINT `PK_authorities` -- 사용자 권한 매핑 기본키
+		PRIMARY KEY (
+			`email`,     -- 이메일
+			`authority`  -- 권한
+		);
+
+-- 역할
+CREATE TABLE `roles` (
+	`authority`   VARCHAR(50)  NOT NULL COMMENT '권한', -- 권한
+	`role_name`   VARCHAR(50)  NULL     COMMENT '역할명', -- 역할명
+	`description` VARCHAR(100) NULL     COMMENT '권한설명' -- 권한설명
+)
+COMMENT '역할';
+
+-- 역할
+ALTER TABLE `roles`
+	ADD CONSTRAINT `PK_roles` -- 역할 기본키
+		PRIMARY KEY (
+			`authority` -- 권한
+		);
+
+-- 드라이브 파일
+CREATE TABLE `drivefile` (
+	`drivefileidx` BIGINT       NOT NULL COMMENT '파일식별번호', -- 파일식별번호
+	`filename`     MEDIUMTEXT   NOT NULL COMMENT '파일명', -- 파일명
+	`creator`      VARCHAR(100) NULL     COMMENT '작성자', -- 작성자
+	`filesize`     INT          NULL     COMMENT '파일크기', -- 파일크기
+	`createdate`   TIMESTAMP    NULL     DEFAULT CURRENT_TIMESTAMP COMMENT '생성일', -- 생성일
+	`deletedate`   TIMESTAMP    NULL     COMMENT '삭제일', -- 삭제일
+	`isdelete`     BIT          NULL     DEFAULT 0 COMMENT '휴지통에있나요', -- 휴지통에있나요
+	`driveidx`     BIGINT       NULL     COMMENT '폴더식별번호' -- 폴더식별번호
+)
+COMMENT '드라이브 파일';
+
+-- 드라이브 파일
+ALTER TABLE `drivefile`
+	ADD CONSTRAINT `PK_drivefile` -- 드라이브 파일 기본키
+		PRIMARY KEY (
+			`drivefileidx` -- 파일식별번호
+		);
+
+ALTER TABLE `drivefile`
+	MODIFY COLUMN `drivefileidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '파일식별번호';
+
+ALTER TABLE `drivefile`
+	AUTO_INCREMENT = 1;
+
+-- 칼럼명
+CREATE TABLE `colname` (
+	`colidx`     BIGINT       NOT NULL COMMENT '칼럼식별번호', -- 칼럼식별번호
+	`projectidx` BIGINT       NOT NULL COMMENT '프로젝트식별번호', -- 프로젝트식별번호
+	`colname`    VARCHAR(100) NOT NULL COMMENT '칼럼이름' -- 칼럼이름
+)
+COMMENT '칼럼명';
+
+-- 칼럼명
+ALTER TABLE `colname`
+	ADD CONSTRAINT `PK_colname` -- 칼럼명 기본키
+		PRIMARY KEY (
+			`colidx`,     -- 칼럼식별번호
+			`projectidx`  -- 프로젝트식별번호
+		);
+
+ALTER TABLE `colname`
+	MODIFY COLUMN `colidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '칼럼식별번호';
+
+ALTER TABLE `colname`
+	AUTO_INCREMENT = 1;
+
+-- 이슈댓글
+CREATE TABLE `issuerly` (
+	`issuerlyidx` BIGINT       NOT NULL COMMENT '이슈댓글 식별번호', -- 이슈댓글 식별번호
+	`content`     MEDIUMTEXT   NULL     COMMENT '내용', -- 내용
+	`createdate`  TIMESTAMP    NULL     DEFAULT CURRENT_TIMESTAMP COMMENT '작성일', -- 작성일
+	`creator`     VARCHAR(200) NOT NULL COMMENT '작성자', -- 작성자
+	`issueidx`    BIGINT       NOT NULL COMMENT '이슈식별번호' -- 이슈식별번호
+)
+COMMENT '이슈댓글';
+
+-- 이슈댓글
+ALTER TABLE `issuerly`
+	ADD CONSTRAINT `PK_issuerly` -- 이슈댓글 기본키
+		PRIMARY KEY (
+			`issuerlyidx` -- 이슈댓글 식별번호
+		);
+
+ALTER TABLE `issuerly`
+	MODIFY COLUMN `issuerlyidx` BIGINT NOT NULL AUTO_INCREMENT COMMENT '이슈댓글 식별번호';
+
+ALTER TABLE `issuerly`
+	AUTO_INCREMENT = 1;
+
+-- 프로젝트공지사항
+ALTER TABLE `board`
+	ADD CONSTRAINT `FK_member_TO_board` -- 회원 -> 프로젝트공지사항
+		FOREIGN KEY (
+			`email` -- 이메일
+		)
+		REFERENCES `member` ( -- 회원
+			`email` -- 이메일
+		)
+		ON DELETE CASCADE;
+
+-- 프로젝트공지사항
+ALTER TABLE `board`
+	ADD CONSTRAINT `FK_project_TO_board` -- 프로젝트 -> 프로젝트공지사항
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 파일
+ALTER TABLE `file`
+	ADD CONSTRAINT `FK_board_TO_file` -- 프로젝트공지사항 -> 파일
+		FOREIGN KEY (
+			`boardidx` -- 글번호
+		)
+		REFERENCES `board` ( -- 프로젝트공지사항
+			`boardidx` -- 글번호
+		)
+		ON DELETE CASCADE;
+
+-- 파일
+ALTER TABLE `file`
+	ADD CONSTRAINT `FK_issue_TO_file` -- 이슈 -> 파일
+		FOREIGN KEY (
+			`issueidx` -- 이슈식별번호
+		)
+		REFERENCES `issue` ( -- 이슈
+			`issueidx` -- 이슈식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 프로젝트 회원 목록
+ALTER TABLE `projectlist`
+	ADD CONSTRAINT `FK_project_TO_projectlist` -- 프로젝트 -> 프로젝트 회원 목록
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 프로젝트 회원 목록
+ALTER TABLE `projectlist`
+	ADD CONSTRAINT `FK_member_TO_projectlist` -- 회원 -> 프로젝트 회원 목록
+		FOREIGN KEY (
+			`email` -- 이메일
+		)
+		REFERENCES `member` ( -- 회원
+			`email` -- 이메일
+		)
+		ON DELETE CASCADE;
+
+-- 프로젝트 회원 목록
+ALTER TABLE `projectlist`
+	ADD CONSTRAINT `FK_roles_TO_projectlist` -- 역할 -> 프로젝트 회원 목록
+		FOREIGN KEY (
+			`authority` -- 권한
+		)
+		REFERENCES `roles` ( -- 역할
+			`authority` -- 권한
+		)
+		ON DELETE CASCADE;
+
+-- 이슈
+ALTER TABLE `issue`
+	ADD CONSTRAINT `FK_label_TO_issue` -- 라벨 -> 이슈
+		FOREIGN KEY (
+			`labelidx` -- 라벨식별번호
+		)
+		REFERENCES `label` ( -- 라벨
+			`labelidx` -- 라벨식별번호
+		)
+		ON DELETE NO ACTION;
+
+-- 이슈
+ALTER TABLE `issue`
+	ADD CONSTRAINT `FK_colname_TO_issue` -- 칼럼명 -> 이슈
+		FOREIGN KEY (
+			`colidx`,     -- 칼럼식별번호
+			`projectidx`  -- 프로젝트식별번호
+		)
+		REFERENCES `colname` ( -- 칼럼명
+			`colidx`,     -- 칼럼식별번호
+			`projectidx`  -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 이슈
+ALTER TABLE `issue`
+	ADD CONSTRAINT `FK_project_TO_issue` -- 프로젝트 -> 이슈
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 라벨
+ALTER TABLE `label`
+	ADD CONSTRAINT `FK_project_TO_label` -- 프로젝트 -> 라벨
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 드라이브 폴더
+ALTER TABLE `drivefolder`
+	ADD CONSTRAINT `FK_project_TO_drivefolder` -- 프로젝트 -> 드라이브 폴더
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 채팅방
+ALTER TABLE `chatroom`
+	ADD CONSTRAINT `FK_chattype_TO_chatroom` -- 채팅타입 -> 채팅방
+		FOREIGN KEY (
+			`typecode` -- 타입코드
+		)
+		REFERENCES `chattype` ( -- 채팅타입
+			`typecode` -- 타입코드
+		)
+		ON DELETE CASCADE;
+
+-- 채팅방
+ALTER TABLE `chatroom`
+	ADD CONSTRAINT `FK_project_TO_chatroom` -- 프로젝트 -> 채팅방
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 채팅방 참여자
+ALTER TABLE `chatuser`
+	ADD CONSTRAINT `FK_chatroom_TO_chatuser` -- 채팅방 -> 채팅방 참여자
+		FOREIGN KEY (
+			`chatidx` -- 채팅방식별번호
+		)
+		REFERENCES `chatroom` ( -- 채팅방
+			`chatidx` -- 채팅방식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 개인환경설정
+ALTER TABLE `setting`
+	ADD CONSTRAINT `FK_member_TO_setting` -- 회원 -> 개인환경설정
+		FOREIGN KEY (
+			`email` -- 이메일
+		)
+		REFERENCES `member` ( -- 회원
+			`email` -- 이메일
+		)
+		ON DELETE CASCADE;
+
+-- 캘린더
+ALTER TABLE `smartcalendar`
+	ADD CONSTRAINT `FK_member_TO_smartcalendar` -- 회원 -> 캘린더
+		FOREIGN KEY (
+			`email` -- 이메일
+		)
+		REFERENCES `member` ( -- 회원
+			`email` -- 이메일
+		)
+		ON DELETE CASCADE;
+
+-- 캘린더
+ALTER TABLE `smartcalendar`
+	ADD CONSTRAINT `FK_project_TO_smartcalendar` -- 프로젝트 -> 캘린더
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 이슈변동기록
+ALTER TABLE `issuelog`
+	ADD CONSTRAINT `FK_issue_TO_issuelog` -- 이슈 -> 이슈변동기록
+		FOREIGN KEY (
+			`issueidx` -- 이슈식별번호
+		)
+		REFERENCES `issue` ( -- 이슈
+			`issueidx` -- 이슈식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 사용자 권한 매핑
+ALTER TABLE `authorities`
+	ADD CONSTRAINT `FK_member_TO_authorities` -- 회원 -> 사용자 권한 매핑
+		FOREIGN KEY (
+			`email` -- 이메일
+		)
+		REFERENCES `member` ( -- 회원
+			`email` -- 이메일
+		)
+		ON DELETE CASCADE;
+
+-- 사용자 권한 매핑
+ALTER TABLE `authorities`
+	ADD CONSTRAINT `FK_roles_TO_authorities` -- 역할 -> 사용자 권한 매핑
+		FOREIGN KEY (
+			`authority` -- 권한
+		)
+		REFERENCES `roles` ( -- 역할
+			`authority` -- 권한
+		)
+		ON DELETE CASCADE;
+
+-- 드라이브 파일
+ALTER TABLE `drivefile`
+	ADD CONSTRAINT `FK_drivefolder_TO_drivefile` -- 드라이브 폴더 -> 드라이브 파일
+		FOREIGN KEY (
+			`driveidx` -- 폴더식별번호
+		)
+		REFERENCES `drivefolder` ( -- 드라이브 폴더
+			`driveidx` -- 폴더식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 칼럼명
+ALTER TABLE `colname`
+	ADD CONSTRAINT `FK_project_TO_colname` -- 프로젝트 -> 칼럼명
+		FOREIGN KEY (
+			`projectidx` -- 프로젝트식별번호
+		)
+		REFERENCES `project` ( -- 프로젝트
+			`projectidx` -- 프로젝트식별번호
+		)
+		ON DELETE CASCADE;
+
+-- 이슈댓글
+ALTER TABLE `issuerly`
+	ADD CONSTRAINT `FK_issue_TO_issuerly` -- 이슈 -> 이슈댓글
+		FOREIGN KEY (
+			`issueidx` -- 이슈식별번호
+		)
+		REFERENCES `issue` ( -- 이슈
+			`issueidx` -- 이슈식별번호
+		)
+		ON DELETE CASCADE;
